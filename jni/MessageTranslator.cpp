@@ -16,7 +16,7 @@ void MessageTranslator::Init( JNIEnv* env, jobject obj )
 	// Get access to the related JAVA class...
 	//
 
-	message_handler_class = (jclass)env->NewGlobalRef( env->FindClass( "com/limasky/audio/MessageHandler" ) );
+	message_handler_class = (jclass)env->NewGlobalRef( env->FindClass( "com/limasky/test/MessageHandler" ) );
 
 	if( message_handler_class == 0 )
 	{
