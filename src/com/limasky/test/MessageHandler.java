@@ -1,5 +1,14 @@
 package com.limasky.test;
 
+import javax.microedition.khronos.opengles.GL10;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.opengl.GLUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -110,5 +119,61 @@ public final class MessageHandler
         msg.setData( b );
 
         mHandler.sendMessage( msg );
+	}
+	
+	public int generateScoremarker( String playerName )
+	{
+		// The method is already in the context of the OpenGL rendering thread, so
+		// just pull the cached OpenGL interface and app Context and use them to 
+		// render the passed player name into a score marker texture.
+		
+		GL10 gl = LSGL1Renderer.getInstance().gl10;
+		Context context = LSGL1Renderer.getInstance().context;
+
+		// Create an empty, mutable bitmap
+		Bitmap bitmap = Bitmap.createBitmap( 256, 256, Bitmap.Config.ARGB_4444 );
+		// Get a canvas to paint over the bitmap
+		Canvas canvas = new Canvas( bitmap );
+		bitmap.eraseColor( 0 );
+
+		// Get a background image from resources
+		// note the image format must match the bitmap format
+		Drawable background = context.getResources().getDrawable( R.drawable.android );
+		background.setBounds( 0, 0, 256, 256 );
+		background.draw( canvas ); // Draw the background to our bitmap
+
+		// Draw the text
+		Typeface tf = Typeface.create( "Helvetica", Typeface.NORMAL );
+		
+		Paint textPaint = new Paint();
+		textPaint.setTypeface( tf );
+		textPaint.setTextSize( 32 );
+		textPaint.setAntiAlias( true );
+		textPaint.setARGB( 255, 0, 0, 0 );
+		canvas.drawText( playerName, 40, 50, textPaint );
+
+		int[] textureIds = new int[1];
+		
+		// Generate one texture pointer...
+		gl.glGenTextures( 1, textureIds, 0 );
+		// ...and bind it to our array
+		gl.glBindTexture( GL10.GL_TEXTURE_2D, textureIds[0] );
+		
+		// Create Nearest Filtered Texture
+		gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST );
+		gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR );
+		
+		// Different possible texture parameters, e.g. GL10.GL_CLAMP_TO_EDGE
+		gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT );
+		gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT );
+		
+		// Use the Android GLUtils to specify a two-dimensional texture
+		// image from our bitmap
+		GLUtils.texImage2D( GL10.GL_TEXTURE_2D, 0, bitmap, 0 );
+		
+		// Clean up
+		bitmap.recycle();
+		
+		return textureIds[0];
 	}
 }

@@ -9,7 +9,8 @@
 enum MessageIds
 {
 	Msg_Load_Audio,
-	Msg_Play_Audio
+	Msg_Play_Audio,
+	Msg_Generate_Scoremarker
 };
 
 // Based on the djb2 algorithm found here:
@@ -52,6 +53,16 @@ struct AudioPlayMsg
     long hash_id_;
     float volume_;
     int loop_;
+};
+
+struct GenerateScoremarkerMsg
+{
+	GenerateScoremarkerMsg( const char* player_name ) :
+		player_name_( player_name )
+    {}
+
+    const char* player_name_;
+    int texture_id_;
 };
 
 #endif // _MESSAGES_H_

@@ -51,9 +51,14 @@ private:
 	jobject obj_play_sound_;
 	jmethodID method_play_sound_;
 
+	jobject obj_generate_scoremarker_;
+	jmethodID method_generate_scoremarker_;
+
 	//
-	// Networking...
+	// Score Marker Texture Generation...
 	//
+
+	int GenerateScoremarker( const char* player_name );
 };
 
 #endif // _MessageTranslator_H_

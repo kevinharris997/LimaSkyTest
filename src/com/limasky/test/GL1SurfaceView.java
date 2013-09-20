@@ -42,6 +42,8 @@ class GL1SurfaceView extends GLSurfaceView
 		{
 			this.context = context;
 
+			LSGL1Renderer.getInstance().context = context;
+			
 			// Initialize our quad.
 			quad = new Quad();
 
@@ -85,6 +87,8 @@ LSGL1Renderer.init( width, height );
 
 		public void onSurfaceCreated( GL10 gl, EGLConfig config )
 		{
+			LSGL1Renderer.getInstance().gl10 = gl;
+			
 			// Create an empty, mutable bitmap
 			Bitmap bitmap = Bitmap.createBitmap( 256, 256, Bitmap.Config.ARGB_4444 );
 			// Get a canvas to paint over the bitmap
@@ -107,31 +111,7 @@ LSGL1Renderer.init( width, height );
 			textPaint.setARGB( 255, 0, 0, 0 );
 			canvas.drawText( "PlayerName", 40, 50, textPaint );
 
-			// int[] textures = new int[1];
-			//
-			// // Generate one texture pointer...
-			// gl.glGenTextures( 1, textures, 0 );
-			// // ...and bind it to our array
-			// gl.glBindTexture( GL10.GL_TEXTURE_2D, textures[0] );
-			//
-			// // Create Nearest Filtered Texture
-			// gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST );
-			// gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR );
-			//
-			// // Different possible texture parameters, e.g. GL10.GL_CLAMP_TO_EDGE
-			// gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT );
-			// gl.glTexParameterf( GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT );
-			//
-			// // Use the Android GLUtils to specify a two-dimensional texture
-			// // image from our bitmap
-			// GLUtils.texImage2D( GL10.GL_TEXTURE_2D, 0, bitmap, 0 );
-			//
-			// // Clean up
-			// bitmap.recycle();
-			
-quad.loadBitmap( bitmap );
-
-
+			quad.loadBitmap( bitmap );
 		}
 	}
 }

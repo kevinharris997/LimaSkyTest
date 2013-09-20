@@ -13,7 +13,7 @@ public class LimaSkyTestActivity extends Activity
 	
 	GL1SurfaceView mView;
 	
-	LSGL1Renderer mGL2RendererLib;
+	//LSGL1Renderer mGL2RendererLib;
 
 	@Override
 	protected void onCreate( Bundle savedInstanceState )
@@ -23,7 +23,7 @@ public class LimaSkyTestActivity extends Activity
 		mView = new GL1SurfaceView( this, getApplication() );
 		setContentView( mView );
 		
-		mGL2RendererLib = new LSGL1Renderer();
+		//mGL2RendererLib = new LSGL1Renderer();
 
 		LSAudioManager.getInstance().init( this.getBaseContext() );
 		MessageHandler.getInstance().initNative();

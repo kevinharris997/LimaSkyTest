@@ -28,7 +28,7 @@ void MessageTranslator::Init( JNIEnv* env, jobject obj )
 	// Get access to the related methods...
 	//
 
-	// LSAudioManager.loadSound
+	// MessageHandler.loadSound
 	obj_load_sound_ = env->NewGlobalRef(obj);
 
 	method_load_sound_ = env->GetMethodID( message_handler_class, "loadSound", "(JLjava/lang/String;)V" );
@@ -39,7 +39,7 @@ void MessageTranslator::Init( JNIEnv* env, jobject obj )
 		return;
 	}
 
-	// LSAudioManager.playSound
+	// MessageHandler.playSound
 
 	obj_play_sound_ = env->NewGlobalRef(obj);
 
@@ -50,6 +50,18 @@ void MessageTranslator::Init( JNIEnv* env, jobject obj )
 		LOGE( "MessageTranslator::init GetMethodID failed for playSound!" );
 		return;
 	}
+
+	// MessageHandler.generateScoremarker
+
+	obj_generate_scoremarker_ = env->NewGlobalRef(obj);
+
+	method_generate_scoremarker_ = env->GetMethodID( message_handler_class, "generateScoremarker", "(Ljava/lang/String;)I" );
+
+	if( method_generate_scoremarker_ == 0 )
+	{
+		LOGE( "MessageTranslator::init GetMethodID failed for generateScoremarker!" );
+		return;
+	}
 }
 
 void MessageTranslator::Destroy( JNIEnv* env )
@@ -58,6 +70,7 @@ void MessageTranslator::Destroy( JNIEnv* env )
 
 	env->DeleteGlobalRef( obj_load_sound_ );
 	env->DeleteGlobalRef( obj_play_sound_ );
+	env->DeleteGlobalRef( obj_generate_scoremarker_ );
 
 	env->DeleteGlobalRef( message_handler_class );
 }
@@ -83,8 +96,18 @@ int MessageTranslator::SendMessage( MessageIds msg_id, void* msg, int target, in
 		}
 		break;
 
+		case Msg_Generate_Scoremarker:
+		{
+			GenerateScoremarkerMsg* generateScoremarker = static_cast<GenerateScoremarkerMsg*>(msg);
+			generateScoremarker->texture_id_ = GenerateScoremarker( generateScoremarker->player_name_ );
+
+			if( generateScoremarker->texture_id_ != 0 )
+				returnCode = MSG_SUCCESS;
+		}
+		break;
+
 		default:
-			LOGI( "MessageTranslator::sendMessage unknown msgId passed!" );
+			LOGI( "MessageTranslator::sendMessage unknown msg_id passed!" );
 			break;
 	}
 
@@ -169,4 +192,31 @@ int MessageTranslator::PlaySound( long id, float volume, int loop )
 	return MSG_SUCCESS;
 }
 
+int MessageTranslator::GenerateScoremarker( const char* player_name )
+{
+	LOGI( "MessageTranslator::GenerateScoremarker called!" );
 
+	if( !jvm_ )
+	{
+		LOGE( "MessageTranslator::GenerateScoremarker JVM NULL!" );
+		return MSG_FAILURE;
+	}
+
+	JNIEnv* env;
+	jint rs = jvm_->AttachCurrentThread( &env, 0 );
+
+	if( rs != JNI_OK )
+	{
+		LOGE( "MessageTranslator::GenerateScoremarker AttachCurrentThread failed!" );
+		return MSG_FAILURE;
+	}
+
+	jstring jstr_player_name = env->NewStringUTF( player_name );
+
+	//jint paramInt = (jint) env->CallIntMethod( obj_generate_scoremarker_, method_generate_scoremarker_, jstr_player_name );
+	jint paramInt = (jint) env->CallIntMethod( obj_generate_scoremarker_, method_generate_scoremarker_, jstr_player_name );
+
+	env->DeleteLocalRef( jstr_player_name );
+
+	return (int)paramInt;
+}

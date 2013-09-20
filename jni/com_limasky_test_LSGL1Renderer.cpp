@@ -23,10 +23,14 @@ long collectSound = 0;
 long jetpack5Sound = 0;
 long snowballthrowSound = 0;
 
+GLuint name_texture_id = 0;
+
 double elapsedTimeSinceLastAudio = 0.0;
 double elapsedTimeSinceLastJetPackAudio = 0.0;
 double elapsedTimeSinceLastThrowAudio = 0.0;
+double elapsedTimeSinceLastNameChange = 0.0;
 int soundToPlay = 0;
+int nameToUse = 0;
 
 GLuint g_program;
 GLuint g_a_positionHandle;
@@ -157,6 +161,18 @@ bool setupSounds()
 	return true;
 }
 
+bool setupTextures()
+{
+	GenerateScoremarkerMsg msg( "Freddy" );
+
+	if( SendMessage( Msg_Generate_Scoremarker, &msg, 0, 0 ) )
+	{
+		name_texture_id = msg.texture_id_;
+	}
+
+	return true;
+}
+
 bool setupGraphics( int w, int h )
 {
 	LOGI( "setupGraphics(%d, %d)", w, h );
@@ -249,6 +265,48 @@ void renderFrame()
 
 
 
+	elapsedTimeSinceLastNameChange += elapsed;
+
+	if( elapsedTimeSinceLastNameChange > 2.0 )
+	{
+		glDeleteTextures( 1, &name_texture_id );
+
+		if( nameToUse == 0 )
+		{
+			GenerateScoremarkerMsg msg( "Johnny" );
+
+			if( SendMessage( Msg_Generate_Scoremarker, &msg, 0, 0 ) )
+			{
+				name_texture_id = msg.texture_id_;
+			}
+		}
+		else if( nameToUse == 1 )
+		{
+			GenerateScoremarkerMsg msg( "Billy" );
+
+			if( SendMessage( Msg_Generate_Scoremarker, &msg, 0, 0 ) )
+			{
+				name_texture_id = msg.texture_id_;
+			}
+		}
+		else if( nameToUse == 2 )
+		{
+			GenerateScoremarkerMsg msg( "Freddy" );
+
+			if( SendMessage( Msg_Generate_Scoremarker, &msg, 0, 0 ) )
+			{
+				name_texture_id = msg.texture_id_;
+			}
+		}
+
+		++nameToUse;
+
+		if( nameToUse > 2 )
+			nameToUse = 0;
+
+		elapsedTimeSinceLastNameChange = 0;
+	}
+
 
 
 //	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -269,6 +327,8 @@ void renderFrame()
 
 
 	glEnable( GL_TEXTURE_2D );
+
+glBindTexture( GL_TEXTURE_2D, name_texture_id );
 
 	glBindBuffer( GL_ARRAY_BUFFER, g_triangleVBO );
 
@@ -295,6 +355,7 @@ void renderFrame()
 JNIEXPORT void JNICALL Java_com_limasky_test_LSGL1Renderer_init(JNIEnv *env, jclass jcls, jint width, jint height)
 {
 	setupSounds();
+	setupTextures();
 	setupGraphics( width, height );
 }
 
