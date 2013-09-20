@@ -193,8 +193,8 @@ bool setupGraphics( int w, int h )
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, g_triangleIBO );
 	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*6, g_indices, GL_STATIC_DRAW );
 
-	glViewport( 0, 0, w, h );
-	checkGlError( "glViewport" );
+//	glViewport( 0, 0, w, h );
+//	checkGlError( "glViewport" );
 
 	g_nowTime = getCurrentTimeInSeconds();
 	g_prevTime = g_nowTime;
@@ -309,10 +309,10 @@ void renderFrame()
 
 
 
-//	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-//	checkGlError( "glClearColor" );
-//	glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-//	checkGlError( "glClear" );
+	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+	checkGlError( "glClearColor" );
+	glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+	checkGlError( "glClear" );
 
 	static float rotationY = 0.0f;
 	rotationY += (elapsed * 50.0f);
@@ -322,13 +322,13 @@ void renderFrame()
 
 	glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    glTranslatef( 0, 0, -4 );
+    glTranslatef( 0, 0, -5 );
     glRotatef( rotationY, 0.0f, 1.0f, 0.0f );
 
 
 	glEnable( GL_TEXTURE_2D );
 
-glBindTexture( GL_TEXTURE_2D, name_texture_id );
+	glBindTexture( GL_TEXTURE_2D, name_texture_id );
 
 	glBindBuffer( GL_ARRAY_BUFFER, g_triangleVBO );
 
