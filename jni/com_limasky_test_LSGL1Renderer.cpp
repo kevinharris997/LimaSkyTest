@@ -50,17 +50,6 @@ const GLfloat g_vertices[] =
 #define NUMBER_OF_VERTICES 4
 #define NUMBER_OF_COMPONENTS_PER_VERTEX 3
 
-const GLfloat g_colors[] =
-{
-	1.0f, 1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f, 1.0f
-};
-
-#define NUMBER_OF_COLORS 4
-#define NUMBER_OF_COMPONENTS_PER_COLOR 4
-
 float g_textureCoordinates[] =
 {
 	0.0f, 1.0f,
@@ -78,7 +67,6 @@ GLushort g_indices[] =
 };
 
 const GLsizeiptr vertex_size = NUMBER_OF_VERTICES*NUMBER_OF_COMPONENTS_PER_VERTEX*sizeof(GLfloat);
-const GLsizeiptr color_size = NUMBER_OF_COLORS*NUMBER_OF_COMPONENTS_PER_COLOR*sizeof(GLfloat);
 const GLsizeiptr texcoord_size = NUMBER_OF_TEXCOORDS*NUMBER_OF_COMPONENTS_TEXCOORDS*sizeof(GLfloat);
 
 GLuint g_triangleVBO;
@@ -184,10 +172,9 @@ bool setupGraphics( int w, int h )
 
 	glGenBuffers( 1, &g_triangleVBO );
 	glBindBuffer( GL_ARRAY_BUFFER, g_triangleVBO );
-	glBufferData( GL_ARRAY_BUFFER, vertex_size + color_size + texcoord_size, 0, GL_STATIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, vertex_size + texcoord_size, 0, GL_STATIC_DRAW );
 	glBufferSubData( GL_ARRAY_BUFFER, 0, vertex_size, g_vertices ); // Start at index 0, to length of vertex_size.
-	glBufferSubData( GL_ARRAY_BUFFER, vertex_size, color_size, g_colors ); // Append color data to vertex data.
-	glBufferSubData( GL_ARRAY_BUFFER, vertex_size + color_size, texcoord_size, g_textureCoordinates ); // Append texcoord data to vertex+color data.
+	glBufferSubData( GL_ARRAY_BUFFER, vertex_size, texcoord_size, g_textureCoordinates ); // Append texcoord data to vertex data.
 
 	glGenBuffers( 1, &g_triangleIBO );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, g_triangleIBO );
@@ -269,7 +256,10 @@ void renderFrame()
 
 	if( elapsedTimeSinceLastNameChange > 2.0 )
 	{
-		glDeleteTextures( 1, &name_texture_id );
+		if( name_texture_id != 0 )
+		{
+			glDeleteTextures( 1, &name_texture_id );
+		}
 
 		if( nameToUse == 0 )
 		{
@@ -322,32 +312,31 @@ void renderFrame()
 
 	glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    glTranslatef( 0, 0, -5 );
+    glTranslatef( 0, 0, -4 );
     glRotatef( rotationY, 0.0f, 1.0f, 0.0f );
 
-
 	glEnable( GL_TEXTURE_2D );
-
 	glBindTexture( GL_TEXTURE_2D, name_texture_id );
 
 	glBindBuffer( GL_ARRAY_BUFFER, g_triangleVBO );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, g_triangleIBO );
 
 	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_COLOR_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	glVertexPointer( 3, GL_FLOAT, 0, (GLvoid*)((char*)NULL) );
-	glColorPointer( 4, GL_FLOAT, 0, (GLvoid*)((char*)NULL+vertex_size) );
-	glTexCoordPointer( 2, GL_FLOAT, 0, (GLvoid*)((char*)NULL+vertex_size+color_size) );
+	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, g_triangleIBO );
+	glVertexPointer( 3, GL_FLOAT, 0, (GLvoid*)((char*)NULL) );
+	glTexCoordPointer( 2, GL_FLOAT, 0, (GLvoid*)((char*)NULL+vertex_size) );
+
 	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0) );
 
     glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_COLOR_ARRAY );
     glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+    glDisable( GL_TEXTURE_2D );
 
 	g_prevTime = g_nowTime;
 }
